@@ -1,5 +1,6 @@
 import { useReducer } from "react";
 import "./styles.css";
+import Amount from "./Amount";
 
 /*
 INSTRUCTIONS / CONSIDERATIONS:
@@ -23,6 +24,8 @@ const initialState = {
   balance: 0,
   loan: 0,
   isActive: false,
+  depositAmount: 0,
+  withdrawAmount: 0,
 };
 
 // openAccount, deposit, withdraw, requestLoan, payLoan, closeAccount
@@ -32,15 +35,26 @@ function reducer(state, action) {
   switch (action.type) {
     case "openAccount":
       return { ...state, isActive: true, balance: action.payload };
+
+    case "setDepositAmount":
+      return {
+        ...state,
+        depositAmount: action.payload,
+      };
     case "deposit":
       return {
         ...state,
-        balance: state.balance + action.payload,
+        balance: state.balance + state.depositAmount,
+      };
+    case "setWithdrawAmount":
+      return {
+        ...state,
+        withdrawAmount: action.payload,
       };
     case "withdraw":
       return {
         ...state,
-        balance: state.balance - action.payload,
+        balance: state.balance - state.withdrawAmount,
       };
     case "requestLoan":
       if (state.loan > 0) return state;
@@ -70,10 +84,8 @@ function reducer(state, action) {
 }
 
 export default function App() {
-  const [{ balance, loan, isActive }, dispatch] = useReducer(
-    reducer,
-    initialState
-  );
+  const [{ balance, loan, isActive, depositAmount, withdrawAmount }, dispatch] =
+    useReducer(reducer, initialState);
 
   return (
     <div className="App">
@@ -90,20 +102,20 @@ export default function App() {
         </button>
       </p>
       <p>
-        <button
-          onClick={() => dispatch({ type: "deposit", payload: 150 })}
-          disabled={!isActive}
-        >
-          Deposit 150
-        </button>
+        <Amount
+          type="deposit"
+          dispatch={dispatch}
+          isActive={isActive}
+          amount={depositAmount}
+        />
       </p>
       <p>
-        <button
-          onClick={() => dispatch({ type: "withdraw", payload: 50 })}
-          disabled={!isActive}
-        >
-          Withdraw 50
-        </button>
+        <Amount
+          type="withdraw"
+          dispatch={dispatch}
+          isActive={isActive}
+          amount={withdrawAmount}
+        />
       </p>
       <p>
         <button
